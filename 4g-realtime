@@ -18,5 +18,13 @@ A：spark以本地或client方式提交到yarn上，spark是通过反射执行�
 yarn cluster模式下，如果要指定appname，必须通过spark-submit --name appname来指定
 
 Q：如何设置yarn上记录spark作业的日志
-A：修改spark client端log4j.properties文件，并重命名（很重要），提交作业的时候通过--files上传该文件即可，对于spark-streaming长任务，应该适当提高日志级别，
+A：修改spark client端log4j.properties文件，并重命名（很重要），提交作业的时候通过--files上传该文件，并修改driver和executor的log4j的配置文件名字，
+如：
+spark-submit
+  --master yarn-cluster
+  --files /path/to/log4j-spark.properties
+  --conf "spark.driver.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
+  --conf "spark.executor.extraJavaOptions=-Dlog4j.configuration=log4j-spark.properties"
+  ...
+对于spark-streaming长任务，应该适当提高日志级别，
 关掉标准和错误输出流，并以滚动文件的方式记录日志（设置文件最大数）
