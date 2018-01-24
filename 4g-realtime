@@ -1,0 +1,22 @@
+Q：spark中广播变量无法通过构造函数和set方法传入Function对象
+A：通过匿名函数引入外部final广播变量解决（迫不得已）
+
+Q：spark中，意图通过对同一个RDD调用两次foreach方法输出，但是只有第一个会有输出
+A：spark中，操作分为transform和action，一旦触发action，任务就会开始执行，一个任务只能有一个action
+
+Q：在spark写redis过程中，发现写入速度不理想，延迟较大
+A：redis实例占用CPU一直100%左右，可看出性能达到瓶颈，通过对redis进行扩展，采用shardedjedis分片redis多实例解决
+
+Q：如果在redis操作中发现大量类型转换异常，很有可能是多线程共用一个redis链接导致
+A：注意一个线程使用一个redis链接
+
+Q：增加kafka topic的partition数，发现spark消费数据量急剧下降
+A：spark对kafka topic改变partition数无法感知，需要重新提交spark任务来消费新的partition数据
+
+Q：在spark jar包中的主类main方法中指定appname，但以cluster模式提交到yarn上后，发现无效，yarn上的作业显示的是主类的全路径
+A：spark以本地或client方式提交到yarn上，spark是通过反射执行的主类的main方法，但是以cluster模式提交到yarn上，是执行的yarn.Client的main方法，因此，
+yarn cluster模式下，如果要指定appname，必须通过spark-submit --name appname来指定
+
+Q：如何设置yarn上记录spark作业的日志
+A：修改spark client端log4j.properties文件，并重命名（很重要），提交作业的时候通过--files上传该文件即可，对于spark-streaming长任务，应该适当提高日志级别，
+关掉标准和错误输出流，并以滚动文件的方式记录日志（设置文件最大数）
